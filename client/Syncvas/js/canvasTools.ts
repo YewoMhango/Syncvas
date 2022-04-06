@@ -1,35 +1,45 @@
 import {
-    Shape,
-    DrawingFreehand,
-    DrawingCircle,
-    DrawingLine,
-    DrawingArrow,
-    DrawingRectangle,
-    DrawingText,
+    Drawable,
+    FreehandDrawing,
+    CircleDrawing,
+    LineDrawing,
+    ArrowDrawing,
+    RectangleDrawing,
+    TextDrawing,
     MyMap,
 } from "./shapes.js";
 import { SyncvasDomElements } from "../Syncvas.js";
 
+/**
+ * Draws on the canvas whenever the user's pointer touches the canvas
+ *
+ * ---
+ * @param e mousedown or touchstart event
+ * @param domElements The DOM elements for the main Syncvas object
+ * @param sendMessage Sends a drawing event back to other users
+ * @param selectedTool The name of the currently selected tool
+ */
 export function onCanvasPointerDown(
     e: MouseEvent | TouchEvent,
     domElements: SyncvasDomElements,
-    callback: (shape: Shape) => void
+    sendMessage: (shape: Drawable) => void,
+    selectedTool: string
 ) {
     const drawTools: MyMap<
-        | typeof DrawingFreehand
-        | typeof DrawingCircle
-        | typeof DrawingLine
-        | typeof DrawingArrow
-        | typeof DrawingRectangle
+        | typeof FreehandDrawing
+        | typeof CircleDrawing
+        | typeof LineDrawing
+        | typeof ArrowDrawing
+        | typeof RectangleDrawing
     > = {
-        freehand: DrawingFreehand,
-        circle: DrawingCircle,
-        line: DrawingLine,
-        arrow: DrawingArrow,
-        rectangle: DrawingRectangle,
+        freehand: FreehandDrawing,
+        circle: CircleDrawing,
+        line: LineDrawing,
+        arrow: ArrowDrawing,
+        rectangle: RectangleDrawing,
     };
 
-    const selected = drawTools[domElements.toolSelector.value];
+    const selected = drawTools[selectedTool];
 
     if (selected) {
         e.preventDefault();
@@ -78,18 +88,18 @@ export function onCanvasPointerDown(
             );
 
             const shape = new (selected as
-                | typeof DrawingFreehand
-                | typeof DrawingCircle
-                | typeof DrawingLine
-                | typeof DrawingArrow
-                | typeof DrawingRectangle)({ points: resultingPoints, color });
+                | typeof FreehandDrawing
+                | typeof CircleDrawing
+                | typeof LineDrawing
+                | typeof ArrowDrawing
+                | typeof RectangleDrawing)({ points: resultingPoints, color });
 
             const bottomCtx = bottomCanvas.getContext(
                 "2d"
             ) as CanvasRenderingContext2D;
             bottomCtx.lineWidth = 3;
             shape.drawSelfOn(bottomCtx);
-            callback(shape);
+            sendMessage(shape);
 
             ctx.clearRect(0, 0, bottomCanvas.width, bottomCanvas.height);
         };
@@ -99,10 +109,19 @@ export function onCanvasPointerDown(
     }
 }
 
+/**
+ * Allows input of text on the canvas when the user clicks on it
+ * with the text tool selected
+ *
+ * ---
+ * @param e Mouse or touch click event
+ * @param domElements
+ * @param sendMessage
+ */
 export function onCanvasClickedForText(
     e: MouseEvent,
     domElements: SyncvasDomElements,
-    callback: (shape: Shape) => void
+    sendMessage: (shape: Drawable) => void
 ) {
     const topCanvas = domElements.topCanvas;
     const bottomCanvas = domElements.bottomCanvas;
@@ -123,7 +142,7 @@ export function onCanvasClickedForText(
     textInput.onblur = onDoneTyping;
 
     function onDoneTyping() {
-        const textDrawing = new DrawingText({
+        const textDrawing = new TextDrawing({
             text: textInput.value,
             pos: coordinates,
             maxWidth: textInput.getBoundingClientRect().width,
@@ -133,7 +152,7 @@ export function onCanvasClickedForText(
         textDrawing.drawSelfOn(
             bottomCanvas.getContext("2d") as CanvasRenderingContext2D
         );
-        callback(textDrawing);
+        sendMessage(textDrawing);
 
         textInput.remove();
     }
@@ -141,23 +160,34 @@ export function onCanvasClickedForText(
     console.log("Clicked on: x:" + e.clientX + " y:" + e.clientY);
 }
 
+/**
+ * Determines the x and y values relative to the coordinates used on
+ * the canvas, based on where the user clicked on the screen. When
+ * the canvas is scaled up or down in size due to CSS rules, the width
+ * and height values will differ from the canvas property values
+ *
+ * ---
+ * @param pointerEvent A Mouse or Touch event object
+ * @param canvas Clicked canvas element
+ * @returns
+ */
 export function pointerPosition(
-    _pos: MouseEvent | TouchEvent,
-    domNode: HTMLCanvasElement
+    pointerEvent: MouseEvent | TouchEvent,
+    canvas: HTMLCanvasElement
 ) {
     let pos: HasClientXAndY;
 
     // At first, the condition was `if(_pos instanceof TouchEvent)` but
     // it seems the type is not defined in the browser's global scope,
     // so that gives you an error
-    if ((_pos as any).touches) {
-        pos = (_pos as any).touches[0] as HasClientXAndY;
+    if ((pointerEvent as any).touches) {
+        pos = (pointerEvent as TouchEvent).touches[0] as HasClientXAndY;
     } else {
-        pos = _pos as HasClientXAndY;
+        pos = pointerEvent as HasClientXAndY;
     }
 
-    const rect = domNode.getBoundingClientRect();
-    const scale = rect.width / domNode.width;
+    const rect = canvas.getBoundingClientRect();
+    const scale = rect.width / canvas.width;
 
     return {
         x: Math.floor((pos.clientX - rect.left) / scale),

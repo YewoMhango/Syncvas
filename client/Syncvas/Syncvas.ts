@@ -5,29 +5,39 @@ import {
     ControlsContainer,
     FontSizeDisplay,
     FontSizeInput,
-    ToolSelector,
     TopCanvas,
 } from "./js/domComponents.js";
 
 import {
-    Shape,
-    DrawingLine,
-    DrawingArrow,
-    DrawingCircle,
-    DrawingRectangle,
-    DrawingFreehand,
-    DrawingText,
+    Drawable,
+    LineDrawing,
+    ArrowDrawing,
+    CircleDrawing,
+    RectangleDrawing,
+    FreehandDrawing,
+    TextDrawing,
     SimpleDrawingData,
     DrawingTextData,
 } from "./js/shapes.js";
 
 import create from "./js/create.js";
 
+/**
+ * This is a Canvas Drawing library meant to allow drawing between
+ * multiple users on different devices to be synchronized
+ */
 export default class Syncvas {
     domElements: SyncvasDomElements;
-    drawingsHistory: Array<Shape>;
-    sendMessageCallback: (shape: Shape) => any;
+    drawingsHistory: Array<Drawable>;
+    sendMessageCallback: (shape: Drawable) => any;
+    selectedTool: string;
 
+    /**
+     * @param targetContainer The element which will contain the root DOM element
+     * @param sendMessageCallback The callback which will be called to send drawing events to other devices
+     * @param width width of the canvas
+     * @param height height of the canvas
+     */
     constructor(
         targetContainer: HTMLElement,
         sendMessageCallback: (message: string) => any,
@@ -35,35 +45,46 @@ export default class Syncvas {
         height: number = 504
     ) {
         this.drawingsHistory = [];
+        this.selectedTool = "freehand";
 
         this.sendMessageCallback = (shape) => {
             this.drawingsHistory.push(shape);
             sendMessageCallback(shape.serialize());
         };
 
-        this.domElements = this.initComponents(width, height, sendMessageCallback);
+        this.domElements = this.initComponents(
+            width,
+            height,
+            sendMessageCallback
+        );
         targetContainer.appendChild(this.domElements.container);
     }
 
+    /**
+     * Initializes most of the DOM elements used by the app
+     */
     private initComponents(
         width: number,
         height: number,
         callback: (message: string) => any
     ): SyncvasDomElements {
         const bottomCanvas = BottomCanvas(width, height);
-        const toolSelector = ToolSelector();
-        const topCanvas = TopCanvas(width, height, this, toolSelector);
+        const topCanvas = TopCanvas(width, height, this);
         const canvasContainer = CanvasContainer(bottomCanvas, topCanvas);
         const colorInput = ColorInput();
         const fontSizeDisplay = FontSizeDisplay();
         const fontSizeInput = FontSizeInput(() => {
             fontSizeDisplay.innerHTML = Number(fontSizeInput.value) + "px";
         });
+
         const controlsContainer = ControlsContainer(
-            toolSelector,
             () => this.clearCanvas(),
             () => this.undo(),
             callback,
+            (tool) => {
+                this.selectedTool = tool;
+                console.log(this);
+            },
             colorInput,
             fontSizeDisplay,
             fontSizeInput
@@ -80,7 +101,6 @@ export default class Syncvas {
             bottomCanvas,
             topCanvas,
             canvasContainer,
-            toolSelector,
             colorInput,
             fontSizeDisplay,
             fontSizeInput,
@@ -89,6 +109,12 @@ export default class Syncvas {
         };
     }
 
+    /**
+     * Draws an object to the canvas, for syncing with what users on other devices have drawn
+     *
+     * ---
+     * @param message A JSON string representing a drawing event
+     */
     draw(message: string) {
         interface DrawingEvent {
             type: string;
@@ -96,36 +122,36 @@ export default class Syncvas {
         }
         let parsedMessage = JSON.parse(message) as DrawingEvent;
 
-        let event: Shape;
+        let event: Drawable;
 
         switch (parsedMessage.type) {
-            case "DrawingLine":
-                event = new DrawingLine(
+            case "LineDrawing":
+                event = new LineDrawing(
                     parsedMessage.data as SimpleDrawingData
                 );
                 break;
-            case "DrawingArrow":
-                event = new DrawingArrow(
+            case "ArrowDrawing":
+                event = new ArrowDrawing(
                     parsedMessage.data as SimpleDrawingData
                 );
                 break;
-            case "DrawingCircle":
-                event = new DrawingCircle(
+            case "CircleDrawing":
+                event = new CircleDrawing(
                     parsedMessage.data as SimpleDrawingData
                 );
                 break;
-            case "DrawingRectangle":
-                event = new DrawingRectangle(
+            case "RectangleDrawing":
+                event = new RectangleDrawing(
                     parsedMessage.data as SimpleDrawingData
                 );
                 break;
-            case "DrawingFreehand":
-                event = new DrawingFreehand(
+            case "FreehandDrawing":
+                event = new FreehandDrawing(
                     parsedMessage.data as SimpleDrawingData
                 );
                 break;
-            case "DrawingText":
-                event = new DrawingText(parsedMessage.data as DrawingTextData);
+            case "TextDrawing":
+                event = new TextDrawing(parsedMessage.data as DrawingTextData);
                 break;
             case "undo":
                 this.undo();
@@ -148,6 +174,10 @@ export default class Syncvas {
         this.drawingsHistory.push(event);
     }
 
+    /**
+     * Clear the canvas, when another user has cleared it.
+     * This also clears and resets all the past history
+     */
     clearCanvas() {
         const bottomCanvas = this.domElements.bottomCanvas;
 
@@ -157,6 +187,9 @@ export default class Syncvas {
         this.drawingsHistory = [];
     }
 
+    /**
+     * This undos the last drawing operation
+     */
     undo() {
         this.drawingsHistory.pop();
 
@@ -170,6 +203,13 @@ export default class Syncvas {
         }
     }
 
+    /**
+     * This is used when the user has just joined and they're supposed to
+     * synchronise with what others have already drawn
+     *
+     * ---
+     * @param canvasDrawings An array of canvas drawing events from the past
+     */
     updateWithAccumulatedState(canvasDrawings: Array<string>) {
         for (let shape of canvasDrawings) {
             this.draw(shape);
@@ -181,7 +221,6 @@ export interface SyncvasDomElements {
     bottomCanvas: HTMLCanvasElement;
     topCanvas: HTMLCanvasElement;
     canvasContainer: HTMLDivElement;
-    toolSelector: HTMLSelectElement;
     colorInput: HTMLInputElement;
     fontSizeDisplay: HTMLSpanElement;
     fontSizeInput: HTMLInputElement;

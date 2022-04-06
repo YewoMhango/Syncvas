@@ -1,0 +1,117 @@
+@font-face {
+    font-family: "Open Sans";
+    src: url(./OpenSans-Semibold.ttf);
+}
+
+.SyncvasDom {
+    font-family: "Open Sans";
+}
+
+.SyncvasDom * {
+    box-sizing: border-box;
+    transition: 0.2s all ease;
+}
+
+.SyncvasDom .topCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.SyncvasDom .canvasTextInput {
+    position: absolute;
+    background-color: transparent;
+    border: #0078d7 1px dashed;
+    z-index: 5;
+    font: 24px "Open Sans";
+    margin: 0;
+    padding: 2px;
+    line-height: 1.375;
+}
+
+.SyncvasDom #fontSizeInput {
+    width: 200px;
+    display: inline;
+}
+
+.SyncvasDom .canvasDrawerDom {
+    max-width: 100%;
+}
+
+.SyncvasDom .canvasContainer {
+    border: 2px grey solid;
+    display: inline-block;
+    position: relative;
+    box-sizing: content-box;
+}
+
+.SyncvasDom .canvasContainer .topCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.SyncvasDom .canvasTextInput {
+    position: absolute;
+    background-color: transparent;
+    border: #0078d7 1px dashed;
+    z-index: 5;
+    font: 24px "Open Sans";
+    margin: 0;
+    padding: 2px;
+    line-height: 1.375;
+}
+
+.SyncvasDom .controlsContainer {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    font-family: "Open Sans";
+}
+.SyncvasDom .controlsContainer > * {
+    height: 24px;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font: inherit;
+}
+
+.SyncvasDom .controlsContainer > * > * {
+    height: 100%;
+    font: inherit;
+}
+
+.SyncvasDom .controlsContainer button {
+    width: 40px;
+    height: 40px;
+    border-radius: 40px;
+    padding: 7px;
+    border: rgb(60, 60, 60) 2px solid;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.SyncvasDom .controlsContainer button:hover {
+    background-color: rgb(194, 194, 194);
+}
+
+.SyncvasDom .controlsContainer button:active {
+    background-color: grey;
+}
+
+.SyncvasDom .toolButton[selected="true"] {
+    background-color: rgb(60, 60, 60);
+}
+
+.SyncvasDom .toolButton[selected="true"]:hover {
+    background-color: rgb(60, 60, 60);
+}
+
+.SyncvasDom .toolButton[selected="true"] path {
+    fill: white;
+}

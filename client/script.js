@@ -13,11 +13,6 @@ let canvas = new Syncvas(
     }
 );
 
-//enabling send message when connection is open
-mywsServer.onopen = function () {
-    // sendBtn.disabled = false;
-};
-
 //handling message event
 mywsServer.onmessage = function (event) {
     const { data } = event;
@@ -29,8 +24,6 @@ mywsServer.onmessage = function (event) {
     if (parsedMsg.type == "drawingEvent") {
         canvas.draw(parsedMsg.data);
     } else if (parsedMsg.type == "accumulatedState") {
-        for (let element of parsedMsg.data) {
-            canvas.draw(element);
-        }
+        canvas.updateWithAccumulatedState(parsedMsg.data);
     }
 };

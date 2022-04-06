@@ -1,9 +1,24 @@
-export abstract class Shape {
+/**
+ * Represents any object that can be drawn on the canvas
+ */
+export abstract class Drawable {
+    /**
+     * Used to draw the object onto a canvas
+     *
+     * ---
+     * @param ctx The 2D Canvas Rendering Context object for the drawing canvas
+     */
     abstract drawSelfOn(ctx: CanvasRenderingContext2D): void;
+    /**
+     * Used to serialize the object into JSON for network sharing
+     */
     abstract serialize(): string;
 }
 
-export abstract class ShapeWithTwoVertices extends Shape {
+/**
+ * Represents any shape or drawable that only needs 2 vertices to represent it
+ */
+export abstract class ShapeWithTwoVertices extends Drawable {
     public from: Point;
     public to: Point;
     public color: string;
@@ -39,6 +54,15 @@ export abstract class ShapeWithTwoVertices extends Shape {
         });
     }
 
+    /**
+     * Returns a callback which draws a new version of the object every
+     * time the user's cursor moves positions
+     *
+     * ---
+     * @param start Starting point for drawing
+     * @param ctx 2D Canvas rendering context
+     * @param color Object color
+     */
     static startDrawingOnCanvas(
         start: Point,
         ctx: CanvasRenderingContext2D,
@@ -56,6 +80,14 @@ export abstract class ShapeWithTwoVertices extends Shape {
         };
     }
 
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(
         ctx: CanvasRenderingContext2D,
         points: Array<Point>,
@@ -63,7 +95,15 @@ export abstract class ShapeWithTwoVertices extends Shape {
     ) {}
 }
 
-export class DrawingLine extends ShapeWithTwoVertices {
+export class LineDrawing extends ShapeWithTwoVertices {
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(
         ctx: CanvasRenderingContext2D,
         points: Array<Point>,
@@ -80,7 +120,15 @@ export class DrawingLine extends ShapeWithTwoVertices {
     }
 }
 
-export class DrawingArrow extends ShapeWithTwoVertices {
+export class ArrowDrawing extends ShapeWithTwoVertices {
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(
         ctx: CanvasRenderingContext2D,
         points: Array<Point>,
@@ -122,7 +170,15 @@ export class DrawingArrow extends ShapeWithTwoVertices {
     }
 }
 
-export class DrawingCircle extends ShapeWithTwoVertices {
+export class CircleDrawing extends ShapeWithTwoVertices {
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(
         ctx: CanvasRenderingContext2D,
         points: Array<Point>,
@@ -144,7 +200,15 @@ export class DrawingCircle extends ShapeWithTwoVertices {
     }
 }
 
-export class DrawingRectangle extends ShapeWithTwoVertices {
+export class RectangleDrawing extends ShapeWithTwoVertices {
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(
         ctx: CanvasRenderingContext2D,
         points: Array<Point>,
@@ -158,7 +222,7 @@ export class DrawingRectangle extends ShapeWithTwoVertices {
     }
 }
 
-export class DrawingFreehand extends Shape {
+export class FreehandDrawing extends Drawable {
     points: Array<Point>;
     color: string;
 
@@ -182,6 +246,15 @@ export class DrawingFreehand extends Shape {
         ctx.stroke();
     }
 
+    /**
+     * Returns a callback which draws a new version of the object every
+     * time the user's cursor moves positions
+     *
+     * ---
+     * @param start Starting point for drawing
+     * @param ctx 2D Canvas rendering context
+     * @param color Object color
+     */
     static startDrawingOnCanvas(
         start: Point,
         ctx: CanvasRenderingContext2D,
@@ -201,11 +274,11 @@ export class DrawingFreehand extends Shape {
     }
 
     serialize() {
-        return JSON.stringify({ type: "DrawingFreehand", data: this });
+        return JSON.stringify({ type: "FreehandDrawing", data: this });
     }
 }
 
-export class DrawingText extends Shape {
+export class TextDrawing extends Drawable {
     public text: string;
     public pos: Point;
     public maxWidth: number;
@@ -244,10 +317,15 @@ export class DrawingText extends Shape {
     }
 
     serialize() {
-        return JSON.stringify({ type: "DrawingText", data: this });
+        return JSON.stringify({ type: "TextDrawing", data: this });
     }
 }
 
+/**
+ * Basically used to split text which has been input from the user using the Text
+ * tool into lines based on length. It's implemented in a pretty hacky way, so
+ * there's much room for improvement
+ */
 function splitStringIntoLines(str: string, maxWidth: number, fontSize: number) {
     let array: Array<string> = [];
     let lastSpaceIndex: number;

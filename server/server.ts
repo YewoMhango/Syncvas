@@ -14,6 +14,10 @@ const wsServer = new WebSocket.Server({
     noServer: true,
 }); // a websocket server
 
+/**
+ * Drawing events which have accumulated over time due to users
+ * drawing on the canvas, sent to any new users whenever they join
+ */
 let accumulatedState: any[] = [];
 
 wsServer.on("connection", function (ws) {
@@ -34,6 +38,8 @@ wsServer.on("connection", function (ws) {
         console.log(parsedMsg.data.type);
 
         if (parsedMsg.type == "drawingEvent") {
+            console.log(parsedMsg.data);
+
             const innerParsedMsg = JSON.parse(parsedMsg.data);
             console.log(innerParsedMsg);
 

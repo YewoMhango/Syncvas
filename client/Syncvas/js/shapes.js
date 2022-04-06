@@ -1,6 +1,12 @@
-export class Shape {
+/**
+ * Represents any object that can be drawn on the canvas
+ */
+export class Drawable {
 }
-export class ShapeWithTwoVertices extends Shape {
+/**
+ * Represents any shape or drawable that only needs 2 vertices to represent it
+ */
+export class ShapeWithTwoVertices extends Drawable {
     constructor({ points, color }) {
         super();
         this.from = points[0];
@@ -20,6 +26,15 @@ export class ShapeWithTwoVertices extends Shape {
             data: { points: [this.from, this.to], color: this.color },
         });
     }
+    /**
+     * Returns a callback which draws a new version of the object every
+     * time the user's cursor moves positions
+     *
+     * ---
+     * @param start Starting point for drawing
+     * @param ctx 2D Canvas rendering context
+     * @param color Object color
+     */
     static startDrawingOnCanvas(start, ctx, color) {
         ctx.lineWidth = 3;
         return ({ x, y }, resultingPoints) => {
@@ -29,9 +44,25 @@ export class ShapeWithTwoVertices extends Shape {
             return resultingPoints;
         };
     }
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(ctx, points, color) { }
 }
-export class DrawingLine extends ShapeWithTwoVertices {
+export class LineDrawing extends ShapeWithTwoVertices {
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(ctx, points, color) {
         let start = points[0];
         let end = points[1];
@@ -42,7 +73,15 @@ export class DrawingLine extends ShapeWithTwoVertices {
         ctx.stroke();
     }
 }
-export class DrawingArrow extends ShapeWithTwoVertices {
+export class ArrowDrawing extends ShapeWithTwoVertices {
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(ctx, points, color) {
         let start = points[0];
         let { x, y } = points[1];
@@ -71,7 +110,15 @@ export class DrawingArrow extends ShapeWithTwoVertices {
         ctx.fill();
     }
 }
-export class DrawingCircle extends ShapeWithTwoVertices {
+export class CircleDrawing extends ShapeWithTwoVertices {
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(ctx, points, color) {
         let start = points[0];
         let end = points[1];
@@ -85,7 +132,15 @@ export class DrawingCircle extends ShapeWithTwoVertices {
         ctx.stroke();
     }
 }
-export class DrawingRectangle extends ShapeWithTwoVertices {
+export class RectangleDrawing extends ShapeWithTwoVertices {
+    /**
+     * Implements the drawing behaviour specific to the current tool
+     *
+     * ---
+     * @param ctx 2D Canvas Rendering Context
+     * @param points The array of points to be used for drawing
+     * @param color Drawing color
+     */
     static draw(ctx, points, color) {
         let start = points[0];
         let end = points[1];
@@ -93,7 +148,7 @@ export class DrawingRectangle extends ShapeWithTwoVertices {
         ctx.strokeRect(start.x, start.y, end.x - start.x, end.y - start.y);
     }
 }
-export class DrawingFreehand extends Shape {
+export class FreehandDrawing extends Drawable {
     constructor({ points, color }) {
         super();
         this.points = points;
@@ -109,6 +164,15 @@ export class DrawingFreehand extends Shape {
         }
         ctx.stroke();
     }
+    /**
+     * Returns a callback which draws a new version of the object every
+     * time the user's cursor moves positions
+     *
+     * ---
+     * @param start Starting point for drawing
+     * @param ctx 2D Canvas rendering context
+     * @param color Object color
+     */
     static startDrawingOnCanvas(start, ctx, color) {
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -121,10 +185,10 @@ export class DrawingFreehand extends Shape {
         };
     }
     serialize() {
-        return JSON.stringify({ type: "DrawingFreehand", data: this });
+        return JSON.stringify({ type: "FreehandDrawing", data: this });
     }
 }
-export class DrawingText extends Shape {
+export class TextDrawing extends Drawable {
     constructor({ text, pos, maxWidth, fontSize, color }) {
         super();
         this.text = text;
@@ -145,9 +209,14 @@ export class DrawingText extends Shape {
         });
     }
     serialize() {
-        return JSON.stringify({ type: "DrawingText", data: this });
+        return JSON.stringify({ type: "TextDrawing", data: this });
     }
 }
+/**
+ * Basically used to split text which has been input from the user using the Text
+ * tool into lines based on length. It's implemented in a pretty hacky way, so
+ * there's much room for improvement
+ */
 function splitStringIntoLines(str, maxWidth, fontSize) {
     let array = [];
     let lastSpaceIndex;
