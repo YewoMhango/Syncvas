@@ -1,0 +1,131 @@
+@font-face {
+   font-family: "Open Sans Semibold";
+   src: url(./OpenSans-Semibold.ttf);
+}
+
+* {
+   box-sizing: border-box;
+   transition: all 0.3s ease;
+}
+
+body {
+   margin: 0;
+}
+
+.svg-canvas {
+   font-family: "Open Sans Semibold";
+   width: calc(100vmin);
+   height: calc(100vmin);
+   margin: auto;
+   padding: 1vmin;
+
+   .canvases {
+      position: relative;
+      border: 0.4vmin solid grey;
+      width: 100%;
+
+      svg {
+         width: 100%;
+         display: inline-block;
+      }
+
+      .top-canvas {
+         position: absolute;
+         left: 0;
+         top: 0;
+      }
+
+      .canvas-text-input {
+         position: absolute;
+         padding: 0;
+         border: none;
+         background-color: transparent;
+         font-family: "Open Sans Semibold";
+         width: fit-content;
+         max-width: fit-content;
+         min-width: fit-content;
+      }
+   }
+
+   .toolbar {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      padding: 2vmin;
+
+      button {
+         width: 6vmin;
+         height: 6vmin;
+         border-radius: 6vmin;
+         padding: 1vmin;
+         border: rgb(50, 50, 50) 0.4vmin solid;
+         cursor: pointer;
+         background-color: transparent;
+
+         svg {
+            max-height: 100%;
+            max-width: 100%;
+            margin: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            path {
+               fill: rgb(50, 50, 50);
+            }
+         }
+      }
+
+      button:hover {
+         background-color: rgb(194, 194, 194);
+      }
+
+      button:active {
+         background-color: grey;
+      }
+
+      [data-selected="true"] {
+         background-color: rgb(50, 50, 50);
+
+         path {
+            fill: white;
+         }
+      }
+
+      [data-selected="true"]:hover {
+         background-color: rgb(50, 50, 50);
+      }
+
+   }
+
+   .lower-bar {
+      font-size: 3vmin;
+      padding: 2vmin;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+
+      .color {
+         #color {
+            height: 4vmin;
+            width: 8vmin;
+            padding: 0;
+            border: 0.4vmin grey solid;
+            cursor: pointer;
+         }
+
+         #color:hover {
+            border-color: rgb(170, 170, 170);
+         }
+      }
+
+      .color,
+      .font-size {
+         display: flex;
+         flex-direction: row;
+         align-items: center;
+
+         // #size {}
+      }
+   }
+}

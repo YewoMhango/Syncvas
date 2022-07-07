@@ -1,0 +1,110 @@
+@font-face {
+  font-family: "Open Sans Semibold";
+  src: url(./OpenSans-Semibold.ttf);
+}
+* {
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+body {
+  margin: 0;
+}
+
+.svg-canvas {
+  font-family: "Open Sans Semibold";
+  width: 100vmin;
+  height: 100vmin;
+  margin: auto;
+  padding: 1vmin;
+}
+.svg-canvas .canvases {
+  position: relative;
+  border: 0.4vmin solid grey;
+  width: 100%;
+}
+.svg-canvas .canvases svg {
+  width: 100%;
+  display: inline-block;
+}
+.svg-canvas .canvases .top-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.svg-canvas .canvases .canvas-text-input {
+  position: absolute;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  font-family: "Open Sans Semibold";
+  width: fit-content;
+  max-width: fit-content;
+  min-width: fit-content;
+}
+.svg-canvas .toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding: 2vmin;
+}
+.svg-canvas .toolbar button {
+  width: 6vmin;
+  height: 6vmin;
+  border-radius: 6vmin;
+  padding: 1vmin;
+  border: rgb(50, 50, 50) 0.4vmin solid;
+  cursor: pointer;
+  background-color: transparent;
+}
+.svg-canvas .toolbar button svg {
+  max-height: 100%;
+  max-width: 100%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.svg-canvas .toolbar button svg path {
+  fill: rgb(50, 50, 50);
+}
+.svg-canvas .toolbar button:hover {
+  background-color: rgb(194, 194, 194);
+}
+.svg-canvas .toolbar button:active {
+  background-color: grey;
+}
+.svg-canvas .toolbar [data-selected=true] {
+  background-color: rgb(50, 50, 50);
+}
+.svg-canvas .toolbar [data-selected=true] path {
+  fill: white;
+}
+.svg-canvas .toolbar [data-selected=true]:hover {
+  background-color: rgb(50, 50, 50);
+}
+.svg-canvas .lower-bar {
+  font-size: 3vmin;
+  padding: 2vmin;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+.svg-canvas .lower-bar .color #color {
+  height: 4vmin;
+  width: 8vmin;
+  padding: 0;
+  border: 0.4vmin grey solid;
+  cursor: pointer;
+}
+.svg-canvas .lower-bar .color #color:hover {
+  border-color: rgb(170, 170, 170);
+}
+.svg-canvas .lower-bar .color,
+.svg-canvas .lower-bar .font-size {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/*# sourceMappingURL=Syncvas.css.map */

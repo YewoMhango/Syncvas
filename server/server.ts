@@ -4,7 +4,7 @@ import path from "path";
 
 const app = express();
 
-app.use("/", express.static(path.resolve(__dirname, "../client")));
+app.use("/", express.static(path.resolve(__dirname, "../client/build/")));
 
 const myServer = app.listen(9876, () =>
     console.log("Server started on http://localhost:9876")
