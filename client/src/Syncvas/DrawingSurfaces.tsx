@@ -15,7 +15,7 @@ import { Tool, Point, TwoVertexTool } from "./Syncvas";
  * which are used for drawing things onto the screen. The top
  * SVG element is the one which interacts directly with the
  * user's pointing device, while the lower canvas contains
- * objects which the user has not finished drawing
+ * objects which the user has finished drawing
  *
  * ---
  * @param props The react props
